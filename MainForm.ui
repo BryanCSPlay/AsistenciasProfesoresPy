@@ -801,7 +801,6 @@ background: black;
     </property>
     <addaction name="separator"/>
     <addaction name="actionProfesores"/>
-    <addaction name="actionAgregar"/>
    </widget>
    <widget class="QMenu" name="menuMaterias">
     <property name="title">
@@ -809,35 +808,30 @@ background: black;
     </property>
     <addaction name="separator"/>
     <addaction name="actionMaterias"/>
-    <addaction name="actionAgregar_2"/>
    </widget>
    <widget class="QMenu" name="menuCarreras">
     <property name="title">
      <string>Carreras</string>
     </property>
     <addaction name="actionCarreras"/>
-    <addaction name="actionAgregar_carreras"/>
    </widget>
    <widget class="QMenu" name="menuA_os_lectivos">
     <property name="title">
      <string>Ciclos lectivos</string>
     </property>
     <addaction name="actionCiclos"/>
-    <addaction name="actionAgregar_4"/>
    </widget>
    <widget class="QMenu" name="menuSedes">
     <property name="title">
      <string>Sedes</string>
     </property>
     <addaction name="actionSedes"/>
-    <addaction name="actionAgregar_5"/>
    </widget>
    <widget class="QMenu" name="menuDivisiones">
     <property name="title">
      <string>Divisiones</string>
     </property>
     <addaction name="actionDivisiones"/>
-    <addaction name="actionAgregar_3"/>
    </widget>
    <widget class="QMenu" name="menuClases">
     <property name="title">
