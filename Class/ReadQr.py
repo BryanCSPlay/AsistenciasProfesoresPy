@@ -18,9 +18,13 @@ import sqlite3
 
 
 class ReadQrClass(object):
-    def __init__(self):
-        print("hola")
-        return
+    def __init__(self, tableWidget, tableWidget_hoy, tx_date):
+        self.tableWidget = tableWidget
+        self.tableWidget_hoy = tableWidget_hoy
+        self.tx_date = tx_date
+
+        print("Inicio la cam")
+        self.QrRecorder(self.tableWidget, self.tableWidget_hoy, self.tx_date)
 
     def getProfesor(self, _query="SELECT apellido FROM tb_profesores WHERE DNI =", id=None):
         crud = ClassCrud()
@@ -33,9 +37,7 @@ class ReadQrClass(object):
     def QrRecorder(self, tableWidget, tableWidget_hoy, tx_date):
         #img = cv2.imread('1.png')
         # Inicio la camara/WebCam
-        self.tableWidget = tableWidget
-        self.tableWidget_hoy = tableWidget_hoy
-        self.tx_date = tx_date
+        
         cap = cv2.VideoCapture(0)
 
         profesor = ""
@@ -54,10 +56,14 @@ class ReadQrClass(object):
             success, img = cap.read()
 
             for barcode in decode(img):
-                myData = barcode.data.decode(
-                    'utf-8').encode('shift-jis').decode('utf-8')
-                print(myData)
+                myData = ""
+                try:
+                    myData = barcode.data.decode('utf-8').encode('shift-jis').decode('utf-8')
+                except:
+                    myData = barcode.data.decode('utf-8')
 
+                print(myData)
+                
                 profesor = self.getProfesor(
                     "SELECT apellido, dni_profesor FROM tb_profesores WHERE qr = '", str(myData) + "'")
 
@@ -92,16 +98,16 @@ class ReadQrClass(object):
 
                         self.saveAssistance(profesor[1])
 
-                if keypress & 0xFF == ord('q'):
-                    return
-
             cv2.imshow('Camara', img)
 
             # Cierro el exe
-            keypress = cv2.waitKey(1)
+            keypress = cv2.waitKey(1) & 0xFF
 
-            if keypress & 0xFF == ord('q'):
-                return
+            if keypress == ord('q'):
+                break
+
+        cap.release()
+        cv2.destroyAllWindows()
         ######################################################################
 
     def saveAssistance(self, dni_profesor):

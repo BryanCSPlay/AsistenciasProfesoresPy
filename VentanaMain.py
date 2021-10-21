@@ -157,7 +157,7 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
         _query = fixQuery
 
-        print(_query)
+        #print(_query)
 
         if(filter == ""):
             _query += "'" + dia + "' OR asistencias_hoy.estado = 'Recuperación')" + \
@@ -386,8 +386,8 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def qrRead(self):
         from Class.ReadQr import ReadQrClass
 
-        readQr = ReadQrClass()
-        readQr.QrRecorder(self.tableWidget, self.tableWidget_hoy, self.tx_date)
+        readQr = ReadQrClass(self.tableWidget, self.tableWidget_hoy, self.tx_date)
+        #readQr.QrRecorder()
 
     def createAbsence(self):
         try:
