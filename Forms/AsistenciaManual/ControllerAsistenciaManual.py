@@ -228,9 +228,10 @@ class ControllerAsistenciaManual(object):
             self.Dialog.tx_salida.setTime(QtCore.QTime(0, 0))
             self.Dialog.tx_tardanza.setEnabled(True)
 
-    def saveAssistance(self, id_division, dni_profesor, dia="Martes"):
+    def saveAssistance(self, id_division, dni_profesor):
         query2 = ""
-
+        dia = self.getCurrentDay()
+        
         if(self.Dialog.tx_tardanza.isChecked() == True):
             query2 = "SELECT entrada, salida, id_clase FROM tb_clases WHERE dni_profesor = " + \
                 dni_profesor + " AND id_division = " + \
@@ -239,6 +240,8 @@ class ControllerAsistenciaManual(object):
             query2 = "SELECT entrada, salida, id_clase FROM tb_clases WHERE dni_profesor = " + \
                 dni_profesor + " AND id_division = " + \
                 id_division + " AND dia = " + "'" + dia + "'"
+
+        print(query2)
 
         currentClass = ClassCrud().GetWithIds(query2)
 
@@ -394,6 +397,8 @@ class ControllerAsistenciaManual(object):
 
     def defineAssistanceClassProfessor(self, id_division, dni_profesor):
         dia = self.getCurrentDay()
+        date = datetime.datetime.now().strftime("%d-%m-%Y")
+
         queryClass = "SELECT Count(id_clase) FROM tb_clases WHERE dni_profesor =" + dni_profesor + " AND dia = '"+ dia + "'"
         countClass = ClassCrud().GetWithIds(queryClass)
         print(countClass[0])
@@ -408,7 +413,7 @@ class ControllerAsistenciaManual(object):
                 " AND entrada <= " + "'" + \
                 hora.strftime("%H:%M") + "' AND dia = '" + dia +"' order by salida asc"
             currentTodayClass = ClassCrud().Read(queryCurrentTodayClass).fetchall()
-            queryGetTodayAsistanceProfessor = "SELECT id_clase, estado FROM tb_asistencias WHERE dni_profesor = " + dni_profesor
+            queryGetTodayAsistanceProfessor = "SELECT id_clase, estado FROM tb_asistencias WHERE dni_profesor = " + dni_profesor + " AND fecha = '" + date + "'"
             getTodayAsistanceProfessor = ClassCrud().Read(
                 queryGetTodayAsistanceProfessor).fetchall()
             print("//////////////////////////////")
@@ -425,11 +430,13 @@ class ControllerAsistenciaManual(object):
                     if(j[0] == i[0] and j[1] != 'Dentro del instituto'):
                         countAssitance = countAssitance + j.count(i[0])
 
+                    #if(countAssitance == 0 and i[]):
+
                 if(countAssitance == 0):
                     print("Esta clase no tiene asistencia")
 
                     querySelectIdClaseAssistanceToday = "Select id_clase from tb_asistencias where dni_profesor == " + \
-                        dni_profesor + " and estado != 'Dentro del instituto'"
+                        dni_profesor + " and estado != 'Dentro del instituto' and fecha = '" + date + "'"
                     selectIdClaseAssistanceToday = ClassCrud().Read(
                         querySelectIdClaseAssistanceToday).fetchall()
 
@@ -438,7 +445,7 @@ class ControllerAsistenciaManual(object):
                     queryConfig = "SELECT id_sede_default, id_ciclo_default FROM tb_configurations WHERE id = 1"
                     sedeCicloDefault = ClassCrud().GetWithIds(queryConfig)
 
-                    queryLastClass = "SELECT id_clase, salida FROM tb_clases WHERE dni_profesor = " + dni_profesor + \
+                    queryLastClass = "SELECT id_clase, salida, entrada FROM tb_clases WHERE dni_profesor = " + dni_profesor + \
                         " AND entrada <= " + "'" + \
                         hora.strftime("%H:%M") + "'" + " AND dia = '" + dia + "'"
 
@@ -482,6 +489,19 @@ class ControllerAsistenciaManual(object):
                     print(LastClas[0])
                     print(type(oAsistencia.id_clase))
                     print(type(LastClas[0]))
+                    
+
+
+                    #######
+                    assistanceExistAsInside = False
+                    if(oAsistencia.id_clase != LastClas[0]):
+                        for j in getTodayAsistanceProfessor:
+                            if(j[0] == i[0] and j[1] == 'Dentro del instituto'):
+                                countAssitance = countAssitance + j.count(i[0])
+                                assistanceExistAsInside = True
+                                break
+                    ##################
+
 
                     if(oAsistencia.id_clase != LastClas[0]):
                         print("Diferente")
@@ -509,8 +529,11 @@ class ControllerAsistenciaManual(object):
                     list = oAsistencia.AsistenciaToList()
                     for x in list:
                         print(x)
-
-                    self.generateAsitance(oAsistencia)
+                    
+                    if(assistanceExistAsInside == True):
+                        assistanceExistAsInside = False
+                    else:
+                        self.generateAsitance(oAsistencia)
                     # Error, no hay asistencia para esa clase, entonces hago logica para marcar las necesarias hasta el horario actual
 
             # print(str(counter))

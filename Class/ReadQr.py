@@ -54,7 +54,8 @@ class ReadQrClass(object):
             success, img = cap.read()
 
             for barcode in decode(img):
-                myData = barcode.data.decode('utf-8').encode('shift-jis').decode('utf-8')
+                myData = barcode.data.decode(
+                    'utf-8').encode('shift-jis').decode('utf-8')
                 print(myData)
 
                 profesor = self.getProfesor(
@@ -76,7 +77,9 @@ class ReadQrClass(object):
                     cv2.putText(img, profesor[0], (10, 460), cv2.FONT_HERSHEY_SIMPLEX,
                                 0.9, (0, 255, 0), 2)
 
-                    if(currectRegister != profesor[0] or datetime.datetime.now() > new_time):
+                    dateNow = datetime.datetime.now()
+
+                    if(currectRegister != profesor[0] or dateNow > new_time):
                         currectRegister = profesor[0]
 
                         date_and_time = datetime.datetime.now()
@@ -88,7 +91,6 @@ class ReadQrClass(object):
                         print(new_time)
 
                         self.saveAssistance(profesor[1])
-
 
                 if keypress & 0xFF == ord('q'):
                     return
@@ -104,12 +106,15 @@ class ReadQrClass(object):
 
     def saveAssistance(self, dni_profesor):
         dia = self.getCurrentDay()
+        date = datetime.datetime.now().strftime("%d-%m-%Y")
 
-        querySelectIdClaseAssistanceToday = "Select id_clase from tb_asistencias where dni_profesor == " + dni_profesor
+        querySelectIdClaseAssistanceToday = "Select id_clase from tb_asistencias where dni_profesor == " + \
+            dni_profesor + " AND fecha = '" + date + "'"
         selectIdClaseAssistanceToday = ClassCrud().Read(
             querySelectIdClaseAssistanceToday).fetchall()
 
         print(querySelectIdClaseAssistanceToday)
+        print(selectIdClaseAssistanceToday)
         query2 = "SELECT entrada, salida, id_clase, id_division FROM tb_clases WHERE dni_profesor = " + \
             dni_profesor + " AND dia = " + "'" + dia + "' "
 
@@ -126,7 +131,7 @@ class ReadQrClass(object):
 
             if(currentClass == None):
                 querySelectIdClaseAssistanceToday = "Select id_clase from tb_asistencias where dni_profesor == " + \
-                    dni_profesor + " and estado != 'Dentro del instituto'"
+                    dni_profesor + " and estado != 'Dentro del instituto' AND fecha = '" + date + "'"
                 selectIdClaseAssistanceToday = ClassCrud().Read(
                     querySelectIdClaseAssistanceToday).fetchall()
 
@@ -136,8 +141,8 @@ class ReadQrClass(object):
 
                 try:
                     print(selectIdClaseAssistanceToday)
-                    for i in selectIdClaseAssistanceToday:
-                        query2 += "AND id_clase != " + str(i[0]) + " "
+                    for j in selectIdClaseAssistanceToday:
+                        query2 += "AND id_clase != " + str(j[0]) + " "
                         print(query2)
 
                     query2 += "order by entrada asc limit 1"
@@ -262,6 +267,7 @@ class ReadQrClass(object):
 
     def defineAssistanceClassProfessor(self, id_division, dni_profesor):
         dia = self.getCurrentDay()
+        date = datetime.datetime.now().strftime("%d-%m-%Y")
         queryClass = "SELECT Count(id_clase) FROM tb_clases WHERE dni_profesor =" + \
             dni_profesor
         countClass = ClassCrud().GetWithIds(queryClass)
@@ -277,7 +283,8 @@ class ReadQrClass(object):
                 dni_profesor + " AND entrada <= " + \
                 "'" + hora.strftime("%H:%M") + "' order by salida asc"
             currentTodayClass = ClassCrud().Read(queryCurrentTodayClass).fetchall()
-            queryGetTodayAsistanceProfessor = "SELECT id_clase, estado FROM tb_asistencias WHERE dni_profesor = " + dni_profesor
+            queryGetTodayAsistanceProfessor = "SELECT id_clase, estado FROM tb_asistencias WHERE dni_profesor = " + \
+                dni_profesor + " AND fecha = '" + date + "'"
             getTodayAsistanceProfessor = ClassCrud().Read(
                 queryGetTodayAsistanceProfessor).fetchall()
             print("//////////////////////////////")
@@ -298,7 +305,8 @@ class ReadQrClass(object):
                     print("Esta clase no tiene asistencia")
 
                     querySelectIdClaseAssistanceToday = "Select id_clase from tb_asistencias where dni_profesor == " + \
-                        dni_profesor + " and estado != 'Dentro del instituto'"
+                        dni_profesor + " and estado != 'Dentro del instituto'" + \
+                        " AND fecha = '" + date + "'"
                     selectIdClaseAssistanceToday = ClassCrud().Read(
                         querySelectIdClaseAssistanceToday).fetchall()
 
@@ -352,6 +360,16 @@ class ReadQrClass(object):
                     print(type(oAsistencia.id_clase))
                     print(type(LastClas[0]))
 
+                    #######
+                    assistanceExistAsInside = False
+                    if(oAsistencia.id_clase != LastClas[0]):
+                        for j in getTodayAsistanceProfessor:
+                            if(j[0] == i[0] and j[1] == 'Dentro del instituto'):
+                                countAssitance = countAssitance + j.count(i[0])
+                                assistanceExistAsInside = True
+                                break
+                    ##################
+
                     if(oAsistencia.id_clase != LastClas[0]):
                         print("Diferente")
                         oAsistencia.estado = "Dentro del instituto"
@@ -379,7 +397,10 @@ class ReadQrClass(object):
                     for x in list:
                         print(x)
 
-                    self.generateAsitance(oAsistencia)
+                    if(assistanceExistAsInside == True):
+                        assistanceExistAsInside = False
+                    else:
+                        self.generateAsitance(oAsistencia)
                     # Error, no hay asistencia para esa clase, entonces hago logica para marcar las necesarias hasta el horario actual
 
     def generateAsitance(self, oAsistencia):
@@ -390,12 +411,17 @@ class ReadQrClass(object):
         queryAdd = 'INSERT OR REPLACE INTO tb_asistencias (dni_profesor, hora_entrada, hora_salida, tardanza, restante, fecha, estado, id_sede, id_ciclo, observacion, id_clase) VALUES (?,?,?,?,?,?,?,?,?,?,?)'
         crud = ClassCrud().Add(oAsistencia.AsistenciaToList(), queryAdd)
 
-    def LoadData(self, _query="SELECT tb_asistencias.id_asistencia, tb_asistencias.dni_profesor, tb_profesores.apellido, tb_profesores.nombre, tb_asistencias.hora_entrada, tb_asistencias.hora_salida, tb_asistencias.tardanza, tb_asistencias.restante, tb_asistencias.fecha, tb_asistencias.estado, tb_sedes.sede, tb_ciclos.ciclo, tb_asistencias.observacion FROM tb_asistencias LEFT JOIN tb_profesores ON tb_asistencias.dni_profesor=tb_profesores.dni_profesor LEFT JOIN tb_sedes ON tb_asistencias.id_sede=tb_sedes.id_sede LEFT JOIN tb_ciclos ON tb_asistencias.id_ciclo=tb_ciclos.id_ciclo"):
+    def LoadData(self, _query="SELECT tb_asistencias.id_asistencia, tb_asistencias.dni_profesor, tb_profesores.apellido, tb_profesores.nombre, tb_asistencias.hora_entrada, tb_asistencias.hora_salida, tb_asistencias.tardanza, tb_asistencias.restante, tb_asistencias.fecha, tb_asistencias.estado, tb_sedes.sede, tb_ciclos.ciclo, tb_asistencias.observacion FROM tb_asistencias LEFT JOIN tb_profesores ON tb_asistencias.dni_profesor=tb_profesores.dni_profesor LEFT JOIN tb_sedes ON tb_asistencias.id_sede=tb_sedes.id_sede LEFT JOIN tb_ciclos ON tb_asistencias.id_ciclo=tb_ciclos.id_ciclo", filter=""):
         dateObject = self.tx_date.date().toPyDate()
         date = dateObject.strftime("%d-%m-%Y")
 
         crud = ClassCrud()
-        result = crud.Read(_query + " WHERE fecha ==" + "'" + str(date) + "'")
+        if(filter == ""):
+            result = crud.Read(_query + " WHERE fecha ==" +
+                               "'" + str(date) + "'")
+        else:
+            result = crud.Read(_query + " WHERE fecha ==" +
+                               "'" + str(date) + "' AND " + filter)
 
         self.tableWidget.setRowCount(0)
 
@@ -407,12 +433,27 @@ class ReadQrClass(object):
 
         crud.DisconnectToDb()
 
-    def LoadDataToday(self, _query="SELECT tb_clases.id_clase, tb_clases.id_division, tb_divisiones.division, tb_clases.dni_profesor, tb_profesores.apellido, tb_profesores.nombre, tb_materias.materia, tb_clases.entrada, tb_clases.salida, tb_asistencias.tardanza, tb_asistencias.restante, tb_asistencias.estado, tb_clases.dia, tb_asistencias.id_asistencia FROM tb_clases LEFT JOIN tb_asistencias ON tb_clases.id_clase = tb_asistencias.id_clase LEFT JOIN tb_profesores ON tb_clases.dni_profesor = tb_profesores.dni_profesor LEFT JOIN tb_divisiones ON tb_clases.id_division = tb_divisiones.id_division LEFT JOIN tb_materias ON tb_divisiones.id_materia = tb_materias.id_materia WHERE (tb_clases.dia = "):
+    def LoadDataToday(self, _query="SELECT tb_clases.id_clase, tb_clases.id_division, tb_divisiones.division, tb_clases.dni_profesor, tb_profesores.apellido, tb_profesores.nombre, tb_materias.materia, tb_clases.entrada, tb_clases.salida, tb_asistencias.tardanza, tb_asistencias.restante, tb_asistencias.estado, tb_clases.dia, tb_asistencias.id_asistencia FROM tb_clases LEFT JOIN tb_asistencias ON tb_clases.id_clase = tb_asistencias.id_clase LEFT JOIN tb_profesores ON tb_clases.dni_profesor = tb_profesores.dni_profesor LEFT JOIN tb_divisiones ON tb_clases.id_division = tb_divisiones.id_division LEFT JOIN tb_materias ON tb_divisiones.id_materia = tb_materias.id_materia WHERE (tb_clases.dia = ", filter=""):
         dia = self.getCurrentDay()
         date = datetime.datetime.now().strftime("%d-%m-%Y")
-        _query += "'" + dia + "' OR tb_asistencias.estado = 'Recuperación')" + " AND (tb_asistencias.fecha is NULL OR tb_asistencias.fecha = '" + date + "')" + " ORDER by tb_asistencias.id_asistencia"
+
+        fixQuery = "SELECT tb_clases.id_clase, tb_clases.id_division, tb_divisiones.division, tb_clases.dni_profesor, tb_profesores.apellido, tb_profesores.nombre, tb_materias.materia, tb_clases.entrada, tb_clases.salida, asistencias_hoy.tardanza, asistencias_hoy.restante, asistencias_hoy.estado, tb_clases.dia, asistencias_hoy.id_asistencia FROM tb_clases LEFT JOIN (SELECT * FROM tb_asistencias WHERE tb_asistencias.fecha = '" + \
+            date + \
+            "') asistencias_hoy ON tb_clases.id_clase = asistencias_hoy.id_clase LEFT JOIN tb_profesores ON tb_clases.dni_profesor = tb_profesores.dni_profesor LEFT JOIN tb_divisiones ON tb_clases.id_division = tb_divisiones.id_division LEFT JOIN tb_materias ON tb_divisiones.id_materia = tb_materias.id_materia WHERE (tb_clases.dia = "
+
+        _query = fixQuery
 
         print(_query)
+
+        if(filter == ""):
+            _query += "'" + dia + "' OR asistencias_hoy.estado = 'Recuperación')" + \
+                " AND (asistencias_hoy.fecha is NULL OR asistencias_hoy.fecha = '" + \
+                date + "')" + " ORDER by asistencias_hoy.id_asistencia"
+        else:
+            _query += "'" + dia + "' OR asistencias_hoy.estado = 'Recuperación')" + \
+                " AND (asistencias_hoy.fecha is NULL OR asistencias_hoy.fecha = '" + \
+                date + "') AND " + filter + " ORDER by asistencias_hoy.id_asistencia"
+
         crud = ClassCrud()
         result = crud.Read(_query)
 
@@ -452,5 +493,3 @@ class ReadQrClass(object):
             day = "Domingo"
 
         return day
-
-    

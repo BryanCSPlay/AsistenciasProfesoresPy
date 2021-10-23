@@ -150,16 +150,24 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
     def LoadDataToday(self, _query="SELECT tb_clases.id_clase, tb_clases.id_division, tb_divisiones.division, tb_clases.dni_profesor, tb_profesores.apellido, tb_profesores.nombre, tb_materias.materia, tb_clases.entrada, tb_clases.salida, tb_asistencias.tardanza, tb_asistencias.restante, tb_asistencias.estado, tb_clases.dia, tb_asistencias.id_asistencia FROM tb_clases LEFT JOIN tb_asistencias ON tb_clases.id_clase = tb_asistencias.id_clase LEFT JOIN tb_profesores ON tb_clases.dni_profesor = tb_profesores.dni_profesor LEFT JOIN tb_divisiones ON tb_clases.id_division = tb_divisiones.id_division LEFT JOIN tb_materias ON tb_divisiones.id_materia = tb_materias.id_materia WHERE (tb_clases.dia = ", filter=""):
         dia = self.getCurrentDay()
         date = datetime.datetime.now().strftime("%d-%m-%Y")
-        if(filter == ""):
-            _query += "'" + dia + "' OR tb_asistencias.estado = 'Recuperación')" + \
-                " AND (tb_asistencias.fecha is NULL OR tb_asistencias.fecha = '" + \
-                date + "')" + " ORDER by tb_asistencias.id_asistencia"
-        else:
-            _query += "'" + dia + "' OR tb_asistencias.estado = 'Recuperación')" + \
-                " AND (tb_asistencias.fecha is NULL OR tb_asistencias.fecha = '" + \
-                date + "') AND " + filter + " ORDER by tb_asistencias.id_asistencia"
 
-        # print(_query)
+        fixQuery = "SELECT tb_clases.id_clase, tb_clases.id_division, tb_divisiones.division, tb_clases.dni_profesor, tb_profesores.apellido, tb_profesores.nombre, tb_materias.materia, tb_clases.entrada, tb_clases.salida, asistencias_hoy.tardanza, asistencias_hoy.restante, asistencias_hoy.estado, tb_clases.dia, asistencias_hoy.id_asistencia FROM tb_clases LEFT JOIN (SELECT * FROM tb_asistencias WHERE tb_asistencias.fecha = '" + \
+            date + \
+            "') asistencias_hoy ON tb_clases.id_clase = asistencias_hoy.id_clase LEFT JOIN tb_profesores ON tb_clases.dni_profesor = tb_profesores.dni_profesor LEFT JOIN tb_divisiones ON tb_clases.id_division = tb_divisiones.id_division LEFT JOIN tb_materias ON tb_divisiones.id_materia = tb_materias.id_materia WHERE (tb_clases.dia = "
+
+        _query = fixQuery
+
+        print(_query)
+
+        if(filter == ""):
+            _query += "'" + dia + "' OR asistencias_hoy.estado = 'Recuperación')" + \
+                " AND (asistencias_hoy.fecha is NULL OR asistencias_hoy.fecha = '" + \
+                date + "')" + " ORDER by asistencias_hoy.id_asistencia"
+        else:
+            _query += "'" + dia + "' OR asistencias_hoy.estado = 'Recuperación')" + \
+                " AND (asistencias_hoy.fecha is NULL OR asistencias_hoy.fecha = '" + \
+                date + "') AND " + filter + " ORDER by asistencias_hoy.id_asistencia"
+
         crud = ClassCrud()
         result = crud.Read(_query)
 
