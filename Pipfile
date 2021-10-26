@@ -35,6 +35,7 @@ PyQt5-sip = "==12.8.1"
 pillow = "*"
 qrcode = "*"
 pyinstaller = "*"
+reportlab = "*"
 
 [dev-packages]
 autopep8 = "*"

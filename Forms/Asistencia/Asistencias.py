@@ -173,6 +173,26 @@ class Ui_Asistencias(object):
         self.tableWidget.verticalHeader().setHighlightSections(True)
         self.horizontalLayout.addWidget(self.tableWidget)
         self.verticalLayout.addLayout(self.horizontalLayout)
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.bt_reporte = QtWidgets.QPushButton(Asistencias)
+        self.bt_reporte.setMinimumSize(QtCore.QSize(0, 39))
+        self.bt_reporte.setMaximumSize(QtCore.QSize(410, 41))
+        font = QtGui.QFont()
+        font.setFamily("Verdana")
+        font.setPointSize(18)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setWeight(50)
+        self.bt_reporte.setFont(font)
+        self.bt_reporte.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.bt_reporte.setStyleSheet("background-color: rgb(7, 70, 124);\n"
+"font: 18pt \"Verdana\";\n"
+"border-radius: 10px;\n"
+"color: rgb(255, 255, 255);")
+        self.bt_reporte.setObjectName("bt_reporte")
+        self.horizontalLayout_3.addWidget(self.bt_reporte)
+        self.verticalLayout.addLayout(self.horizontalLayout_3)
 
         self.retranslateUi(Asistencias)
         QtCore.QMetaObject.connectSlotsByName(Asistencias)
@@ -220,6 +240,7 @@ class Ui_Asistencias(object):
         item.setText(_translate("Asistencias", "Observación"))
         item = self.tableWidget.horizontalHeaderItem(15)
         item.setText(_translate("Asistencias", "id_clase"))
+        self.bt_reporte.setText(_translate("Asistencias", "Generar reporte de asistencias"))
 
 
 if __name__ == "__main__":

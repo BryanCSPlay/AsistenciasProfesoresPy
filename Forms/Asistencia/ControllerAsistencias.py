@@ -6,7 +6,7 @@ import pythoncom
 import datetime
 
 from Class.Crud import ClassCrud
-from Forms.Ciclo.ConsultaCiclo import Ui_ConsultaCiclo
+from Forms.Asistencia.ConsultaReporte import Ui_ConsultaReporte
 
 import sqlite3
 
@@ -27,6 +27,8 @@ class ControllerAsistencias(object):
             lambda: self.search())
         self.Dialog.tx_date.dateChanged.connect(
             lambda: self.search())
+
+        self.Dialog.bt_reporte.clicked.connect(self.abrirFormReportes)
 
         self.Dialog.tx_buscar_asistencia.setFocus(True)
         self.Dialog.tx_date.setDate(datetime.datetime.now())
@@ -99,3 +101,14 @@ class ControllerAsistencias(object):
         except Exception as e:
             print(e)
             return
+
+    def abrirFormReportes(self):
+        self.ventana = QtWidgets.QDialog(self.QDialog)
+        self.ui = Ui_ConsultaReporte()
+        self.ventana.setWindowFlags(
+            self.ventana.windowFlags() & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.ui.setupUi(self.ventana)
+        self.ventana.exec_()
+
+        self.loadData()
+

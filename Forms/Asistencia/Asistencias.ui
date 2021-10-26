@@ -362,6 +362,47 @@ QTableWidget::item{
      </item>
     </layout>
    </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_3">
+     <item>
+      <widget class="QPushButton" name="bt_reporte">
+       <property name="minimumSize">
+        <size>
+         <width>0</width>
+         <height>39</height>
+        </size>
+       </property>
+       <property name="maximumSize">
+        <size>
+         <width>410</width>
+         <height>41</height>
+        </size>
+       </property>
+       <property name="font">
+        <font>
+         <family>Verdana</family>
+         <pointsize>18</pointsize>
+         <weight>50</weight>
+         <italic>false</italic>
+         <bold>false</bold>
+        </font>
+       </property>
+       <property name="focusPolicy">
+        <enum>Qt::NoFocus</enum>
+       </property>
+       <property name="styleSheet">
+        <string notr="true">background-color: rgb(7, 70, 124);
+font: 18pt &quot;Verdana&quot;;
+border-radius: 10px;
+color: rgb(255, 255, 255);</string>
+       </property>
+       <property name="text">
+        <string>Generar reporte de asistencias</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
   </layout>
  </widget>
  <resources/>
