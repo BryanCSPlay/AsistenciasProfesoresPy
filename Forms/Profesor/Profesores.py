@@ -12,7 +12,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 
 
 class Ui_Profesores(object):
-    def setupUi(self, Dialog, selectRegister = None, ref_tx_dni_profesor = None):
+    def setupUi(self, Dialog, selectRegister=False, ref_tx_dni_profesor=None):
         Dialog.setObjectName("Dialog")
         Dialog.setWindowModality(QtCore.Qt.WindowModal)
         Dialog.resize(830, 480)
@@ -134,7 +134,7 @@ class Ui_Profesores(object):
         self.radioButton_apellido.setFont(font)
         self.radioButton_apellido.setObjectName("radioButton_apellido")
         self.bt_modificar = QtWidgets.QPushButton(Dialog)
-        self.bt_modificar.setGeometry(QtCore.QRect(330, 420, 161, 41))
+        self.bt_modificar.setGeometry(QtCore.QRect(230, 420, 161, 41))
         font = QtGui.QFont()
         font.setFamily("Verdana")
         font.setPointSize(18)
@@ -169,6 +169,27 @@ class Ui_Profesores(object):
         self.bt_nuevo.setDefault(False)
         self.bt_nuevo.setFlat(False)
         self.bt_nuevo.setObjectName("bt_nuevo")
+        self.bt_enviar = QtWidgets.QPushButton(Dialog)
+        self.bt_enviar.setGeometry(QtCore.QRect(440, 420, 161, 41))
+        font = QtGui.QFont()
+        font.setFamily("Verdana")
+        font.setPointSize(18)
+        font.setBold(False)
+        font.setItalic(False)
+        font.setWeight(50)
+        self.bt_enviar.setFont(font)
+        self.bt_enviar.setFocusPolicy(QtCore.Qt.NoFocus)
+        self.bt_enviar.setStyleSheet("background-color: rgb(7, 70, 124);\n"
+"font: 18pt \"Verdana\";\n"
+"border-radius: 10px;\n"
+"color: rgb(255, 255, 255);")
+        self.bt_enviar.setAutoDefault(False)
+        self.bt_enviar.setDefault(False)
+        self.bt_enviar.setFlat(False)
+        self.bt_enviar.setObjectName("bt_enviar")
+
+        from Forms.Profesor.ControllerProfesores import ControllerProfesores
+        controller = ControllerProfesores(self, Dialog, selectRegister, ref_tx_dni_profesor)
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -176,9 +197,6 @@ class Ui_Profesores(object):
         Dialog.setTabOrder(self.radioButton_codigo, self.radioButton_apellido)
         Dialog.setTabOrder(self.radioButton_apellido, self.radioButton_nombre)
         Dialog.setTabOrder(self.radioButton_nombre, self.tableWidget)
-
-        from Forms.Profesor.ControllerProfesores import ControllerProfesores
-        controller = ControllerProfesores(self, Dialog, selectRegister, ref_tx_dni_profesor)
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
@@ -200,6 +218,7 @@ class Ui_Profesores(object):
         self.radioButton_apellido.setText(_translate("Dialog", "Apellido"))
         self.bt_modificar.setText(_translate("Dialog", "Modificar"))
         self.bt_nuevo.setText(_translate("Dialog", "Nuevo"))
+        self.bt_enviar.setText(_translate("Dialog", "Enviar QR"))
 
 
 if __name__ == "__main__":

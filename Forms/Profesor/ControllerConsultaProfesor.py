@@ -136,7 +136,8 @@ class ControllerConsultaProfesor(object):
 
     def closeForm(self):
         try:
-            os.remove(self.tx_codigo_anterior)
+            if(self.modificar == False):
+                os.remove(self.tx_codigo_anterior)
         except Exception as e:
             print(e)
         self.QDialog.close()

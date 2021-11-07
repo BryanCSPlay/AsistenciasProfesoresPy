@@ -6,6 +6,7 @@ import pythoncom
 
 from Class.Crud import ClassCrud
 from Forms.Profesor.ConsultaProfesor import Ui_ConsultaProfesor
+from Forms.Profesor.EnviarQr import Ui_EnvioQr
 
 import sqlite3
 
@@ -23,6 +24,7 @@ class ControllerProfesores(object):
 
         self.Dialog.tx_buscar.textChanged.connect(lambda: self.search())
         self.Dialog.bt_nuevo.clicked.connect(lambda: self.openFormConsulta(False))
+        self.Dialog.bt_enviar.clicked.connect(lambda: self.openFormEnviar())
         self.Dialog.bt_modificar.clicked.connect(lambda: self.openFormConsulta(True))
         self.Dialog.bt_eliminar.clicked.connect(lambda: self.eliminarRegistro())
         self.Dialog.tableWidget.doubleClicked.connect(
@@ -130,6 +132,15 @@ class ControllerProfesores(object):
                 self.ui.setupUi(ventana, _modificar, self.getId())
                 ventana.exec_()
                 self.loadData()
+
+    def openFormEnviar(self): 
+        ventana = QtWidgets.QDialog(self.QDialog)
+        self.ui = Ui_EnvioQr()
+        ventana.setWindowFlags(ventana.windowFlags(
+        ) & ~QtCore.Qt.WindowContextHelpButtonHint)
+        self.ui.setupUi(ventana, self.getId())
+        ventana.exec_()
+
 
     def getRegister(self):
         if(self.selectRegister == True):
