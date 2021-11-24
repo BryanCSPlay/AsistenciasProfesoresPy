@@ -548,9 +548,13 @@ class MyApp(QtWidgets.QMainWindow, Ui_MainWindow):
 
 
 if __name__ == "__main__":
-    app = QtWidgets.QApplication(sys.argv)
-    window = MyApp()
-    window.show()
-    window.setWindowIcon(QtGui.QIcon('icon.png'))
+    try:
+        app = QtWidgets.QApplication(sys.argv)
+        window = MyApp()
+        window.show()
+        window.setWindowIcon(QtGui.QIcon('icon.png'))
+    except Exception as e:
+        win32api.MessageBox(
+            0, str(e))
 
     sys.exit(app.exec_())

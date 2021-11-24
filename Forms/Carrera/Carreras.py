@@ -164,7 +164,7 @@ class Ui_Carreras(object):
 
     def retranslateUi(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Dialog"))
+        Dialog.setWindowTitle(_translate("Dialog", "Carreras"))
         self.radioButton_codigo.setText(_translate("Dialog", "Código"))
         item = self.tableWidgetCarrera.horizontalHeaderItem(0)
         item.setText(_translate("Dialog", "Código"))

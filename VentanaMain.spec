@@ -5,7 +5,7 @@ block_cipher = None
 
 
 a = Analysis(['VentanaMain.py'],
-             pathex=['C:\\AsistenciaProfesoresPython\\src'],
+             pathex=[],
              binaries=[],
              datas=[],
              hiddenimports=[],
